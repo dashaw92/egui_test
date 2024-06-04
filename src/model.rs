@@ -1,43 +1,50 @@
 use eframe::egui::{Response, Ui};
 
+//Each screen type is a unique view available in the app
 #[derive(Copy, Clone, Debug)]
 pub enum ScreenType {
+    //Overview of the project
     Home,
+    //Edit the room's geometry
     Geometry,
+    //Paint geometry with art
     Tiles,
+    //Add effects to the room
     Effects,
+    //Modify the room's lighting
     Light,
+    //Place props
     Props,
+    //Change room settings (size, medium, etc)
     Settings,
 }
 
-pub struct SealedId {
-    name: &'static str,
-    assoc_type: ScreenType,
-}
+//Used as a compile time map from strings to screen types
+pub struct SealedPair(&'static str, ScreenType);
 
-impl SealedId {
-    pub const NAMES: [SealedId; 7] = [
-        SealedId { name: "Home", assoc_type: ScreenType::Home },
-        SealedId{ name: "Geometry", assoc_type: ScreenType::Geometry  },
-        SealedId{ name: "Tiles", assoc_type: ScreenType::Tiles  },
-        SealedId{ name: "Effects", assoc_type: ScreenType::Effects  },
-        SealedId{ name: "Light", assoc_type: ScreenType::Light  },
-        SealedId{ name: "Props", assoc_type: ScreenType::Props  },
-        SealedId{ name: "Settings", assoc_type: ScreenType::Settings  }
+impl SealedPair {
+    //Associate button text to screen types for the UI
+    pub const NAMES: [SealedPair; 7] = [
+        SealedPair("Home", ScreenType::Home),
+        SealedPair("Geometry", ScreenType::Geometry),
+        SealedPair("Tiles", ScreenType::Tiles),
+        SealedPair("Effects", ScreenType::Effects),
+        SealedPair("Light", ScreenType::Light),
+        SealedPair("Props", ScreenType::Props),
+        SealedPair("Settings", ScreenType::Settings)
     ];
 
     pub fn name(&self) -> &'static str {
-        self.name
+        self.0
     }
 
     pub fn screen(&self) -> ScreenType {
-        self.assoc_type
+        self.1
     }
 }
 
 impl ScreenType {
-
+    //Get the associated rendering function for any screen type and proxy the call to it
     pub fn render(&self, ui: &mut Ui) -> Response {
         use ScreenType::*;
 

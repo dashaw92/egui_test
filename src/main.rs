@@ -15,9 +15,7 @@ fn main() {
     eframe::run_native(
         "Level Editor", 
         opts, 
-        Box::new(|_| {
-            Box::<LevelEditorApp>::default()
-        })
+        Box::new(|_| Box::<LevelEditorApp>::default())
     ).expect("Whoops!");
 }
 
@@ -38,7 +36,7 @@ impl eframe::App for LevelEditorApp {
         //Menu buttons for navigating the various editors
         egui::TopBottomPanel::top("menu").show(ctx, |ui| {
             ui.horizontal(|ui| {
-                for id in SealedId::NAMES {
+                for id in SealedPair::NAMES {
                     if ui.button(id.name()).clicked() {
                         self.active = id.screen();
                     }
