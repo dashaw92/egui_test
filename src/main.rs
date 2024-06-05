@@ -1,7 +1,8 @@
 mod model;
 
-use eframe::egui;
+use eframe::egui::{self, Color32};
 use model::*;
+use rainworld_level::RWLevel;
 
 fn main() {
     let opts = eframe::NativeOptions {
@@ -21,12 +22,14 @@ fn main() {
 
 struct LevelEditorApp {
     active: ScreenType,
+    _project: Option<RWLevel>,
 }
 
 impl Default for LevelEditorApp {
     fn default() -> Self {
         Self {
             active: ScreenType::Home,
+            _project: None,
         }
     }
 }
@@ -37,7 +40,14 @@ impl eframe::App for LevelEditorApp {
         egui::TopBottomPanel::top("menu").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 for id in SealedPair::NAMES {
-                    if ui.button(id.name()).clicked() {
+                    let mut button = egui::widgets::Button::new(id.name());
+
+                    if id.screen() == self.active {
+                        button = button
+                            .fill(Color32::GRAY);
+                    }
+
+                    if ui.add(button).clicked() && id.screen() != self.active {
                         self.active = id.screen();
                     }
                 }
@@ -45,6 +55,6 @@ impl eframe::App for LevelEditorApp {
         });
         
         //Delegate actual content rendering to each screen type
-        egui::CentralPanel::default().show(ctx, |ui| self.active.render(ui));
+        egui::CentralPanel::default().show(ctx, |ui| self.active.render(ui, &mut self._project));
     }
 }

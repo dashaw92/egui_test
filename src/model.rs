@@ -1,7 +1,9 @@
-use eframe::egui::{Response, Ui};
+use eframe::egui::Ui;
+use rainworld_level::RWLevel;
+use rfd::FileDialog;
 
 //Each screen type is a unique view available in the app
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum ScreenType {
     //Overview of the project
     Home,
@@ -34,18 +36,20 @@ impl SealedPair {
         SealedPair("Settings", ScreenType::Settings)
     ];
 
-    pub fn name(&self) -> &'static str {
+    pub const fn name(&self) -> &'static str {
         self.0
     }
 
-    pub fn screen(&self) -> ScreenType {
+    pub const fn screen(&self) -> ScreenType {
         self.1
     }
 }
 
+type Project<'a> = &'a mut Option<RWLevel>;
+
 impl ScreenType {
     //Get the associated rendering function for any screen type and proxy the call to it
-    pub fn render(&self, ui: &mut Ui) -> Response {
+    pub fn render(&self, ui: &mut Ui, project: Project) {
         use ScreenType::*;
 
         let render_fn = match self {
@@ -58,34 +62,41 @@ impl ScreenType {
             Settings => settings,
         };
 
-        render_fn(ui)
+        render_fn(ui, project)
     }
 }
 
-fn homescreen(ui: &mut Ui) -> Response {
-    ui.label("Home")
+fn homescreen(ui: &mut Ui, project: Project) {    
+    if ui.button("Open Project").clicked() {
+        *project = FileDialog::new()
+            .add_filter("Level Editor Projects", &["txt"])
+            .add_filter("All files", &["*"])
+            .set_title("Open level editor project")
+            .pick_file()
+            .and_then(RWLevel::load);
+    }
 }
 
-fn geometry_editor(ui: &mut Ui) -> Response {
-    ui.label("Geometry")
+fn geometry_editor(ui: &mut Ui, _project: Project) {
+    ui.label("Geometry");
 }
 
-fn tile_editor(ui: &mut Ui) -> Response {
-    ui.label("Tiles")
+fn tile_editor(ui: &mut Ui, _project: Project) {
+    ui.label("Tiles");
 }
 
-fn effects_editor(ui: &mut Ui) -> Response {
-    ui.label("Effects")
+fn effects_editor(ui: &mut Ui, _project: Project) {
+    ui.label("Effects");
 }
 
-fn lights_editor(ui: &mut Ui) -> Response {
-    ui.label("Lights")
+fn lights_editor(ui: &mut Ui, _project: Project) {
+    ui.label("Lights");
 }
 
-fn props_editor(ui: &mut Ui) -> Response {
-    ui.label("Props")
+fn props_editor(ui: &mut Ui, _project: Project) {
+    ui.label("Props");
 }
 
-fn settings(ui: &mut Ui) -> Response {
-    ui.label("Settings")
+fn settings(ui: &mut Ui, _project: Project) {
+    ui.label("Settings");
 }
